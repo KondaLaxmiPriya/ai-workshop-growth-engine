@@ -34,6 +34,7 @@ app.get('/api/campaign', (req, res) => {
   try {
     const campaign = db.getCampaign();
     const metrics = db.getAdminMetrics();
+
     res.json({
       success: true,
       campaign: {
@@ -45,7 +46,10 @@ app.get('/api/campaign', (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -57,6 +61,7 @@ app.get('/api/campaign', (req, res) => {
 app.post('/api/register', (req, res) => {
   try {
     const student = db.registerStudent(req.body);
+
     res.status(201).json({
       success: true,
       message: 'Registration confirmed successfully!',
@@ -64,6 +69,7 @@ app.post('/api/register', (req, res) => {
     });
   } catch (err) {
     const statusCode = err.status || 400;
+
     res.status(statusCode).json({
       success: false,
       error: err.message,
@@ -76,12 +82,23 @@ app.post('/api/register', (req, res) => {
 app.get('/api/students/:code', (req, res) => {
   try {
     const student = db.getStudentByCode(req.params.code);
+
     if (!student) {
-      return res.status(404).json({ success: false, error: 'Student with this referral code not found.' });
+      return res.status(404).json({
+        success: false,
+        error: 'Student with this referral code not found.'
+      });
     }
-    res.json({ success: true, student });
+
+    res.json({
+      success: true,
+      student
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -89,12 +106,23 @@ app.get('/api/students/:code', (req, res) => {
 app.get('/api/students/by-email/:email', (req, res) => {
   try {
     const student = db.getStudentByEmail(req.params.email);
+
     if (!student) {
-      return res.status(404).json({ success: false, error: 'No registration found for this email.' });
+      return res.status(404).json({
+        success: false,
+        error: 'No registration found for this email.'
+      });
     }
-    res.json({ success: true, student });
+
+    res.json({
+      success: true,
+      student
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -107,9 +135,16 @@ app.get('/api/leaderboard', (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 25;
     const leaderboard = db.getLeaderboard(limit);
-    res.json({ success: true, leaderboard });
+
+    res.json({
+      success: true,
+      leaderboard
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -118,9 +153,16 @@ app.get('/api/colleges/leaderboard', (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const colleges = db.getCollegeLeaderboard(limit);
-    res.json({ success: true, colleges });
+
+    res.json({
+      success: true,
+      colleges
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -131,7 +173,14 @@ app.get('/api/colleges/leaderboard', (req, res) => {
 // POST /api/ai/generate-message -> Generate customized sharing message
 app.post('/api/ai/generate-message', (req, res) => {
   try {
-    const { audience, tone, studentName, referralLink, referralCode } = req.body;
+    const {
+      audience,
+      tone,
+      studentName,
+      referralLink,
+      referralCode
+    } = req.body;
+
     const message = generateSharingMessage({
       audience,
       tone,
@@ -139,9 +188,16 @@ app.post('/api/ai/generate-message', (req, res) => {
       referralLink,
       referralCode
     });
-    res.json({ success: true, message });
+
+    res.json({
+      success: true,
+      message
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -152,20 +208,34 @@ app.post('/api/ai/generate-message', (req, res) => {
 // Simple admin auth middleware
 const requireAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, error: 'Unauthorized: Admin authentication token required.' });
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized: Admin authentication token required.'
+    });
   }
+
   const token = authHeader.split(' ')[1];
+
   if (token !== 'demo_admin_jwt_token_2026') {
-    return res.status(403).json({ success: false, error: 'Forbidden: Invalid admin token.' });
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden: Invalid admin token.'
+    });
   }
+
   next();
 };
 
 // POST /api/admin/login -> Verify admin credentials
 app.post('/api/admin/login', (req, res) => {
   const { email, password } = req.body;
-  if (email === 'admin@nxtwave.tech' && password === 'growthadmin2026') {
+
+  if (
+    email === 'admin@nxtwave.tech' &&
+    password === 'growthadmin2026'
+  ) {
     return res.json({
       success: true,
       token: 'demo_admin_jwt_token_2026',
@@ -176,16 +246,29 @@ app.post('/api/admin/login', (req, res) => {
       }
     });
   }
-  res.status(401).json({ success: false, error: 'Invalid admin credentials. Use admin@nxtwave.tech / growthadmin2026' });
+
+  res.status(401).json({
+    success: false,
+    error:
+      'Invalid admin credentials. Use admin@nxtwave.tech / growthadmin2026'
+  });
 });
 
-// GET /api/admin/metrics -> Comprehensive growth metrics, trends, Recharts data, and AI insights
+// GET /api/admin/metrics -> Comprehensive growth metrics,
+// trends, Recharts data, and AI insights
 app.get('/api/admin/metrics', requireAdmin, (req, res) => {
   try {
     const metrics = db.getAdminMetrics();
-    res.json({ success: true, metrics });
+
+    res.json({
+      success: true,
+      metrics
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -193,9 +276,16 @@ app.get('/api/admin/metrics', requireAdmin, (req, res) => {
 app.post('/api/admin/campaign', requireAdmin, (req, res) => {
   try {
     const updated = db.updateCampaign(req.body);
-    res.json({ success: true, campaign: updated });
+
+    res.json({
+      success: true,
+      campaign: updated
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -203,9 +293,16 @@ app.post('/api/admin/campaign', requireAdmin, (req, res) => {
 app.get('/api/admin/expenses', requireAdmin, (req, res) => {
   try {
     const expenses = db.getExpenses();
-    res.json({ success: true, expenses });
+
+    res.json({
+      success: true,
+      expenses
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -213,9 +310,16 @@ app.get('/api/admin/expenses', requireAdmin, (req, res) => {
 app.post('/api/admin/expenses', requireAdmin, (req, res) => {
   try {
     const expense = db.addExpense(req.body);
-    res.status(201).json({ success: true, expense });
+
+    res.status(201).json({
+      success: true,
+      expense
+    });
   } catch (err) {
-    res.status(400).json({ success: false, error: err.message });
+    res.status(400).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -223,16 +327,31 @@ app.post('/api/admin/expenses', requireAdmin, (req, res) => {
 app.delete('/api/admin/expenses/:id', requireAdmin, (req, res) => {
   try {
     db.deleteExpense(req.params.id);
-    res.json({ success: true, message: 'Expense deleted' });
+
+    res.json({
+      success: true,
+      message: 'Expense deleted'
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
-// GET /api/admin/students -> Paginated student records with search & filters
+// GET /api/admin/students -> Paginated student records
+// with search & filters
 app.get('/api/admin/students', requireAdmin, (req, res) => {
   try {
-    const { search, channel, college, page, limit } = req.query;
+    const {
+      search,
+      channel,
+      college,
+      page,
+      limit
+    } = req.query;
+
     const result = db.getStudentsList({
       search: search || '',
       channel: channel || '',
@@ -240,23 +359,40 @@ app.get('/api/admin/students', requireAdmin, (req, res) => {
       page: parseInt(page) || 1,
       limit: parseInt(limit) || 50
     });
-    res.json({ success: true, ...result });
+
+    res.json({
+      success: true,
+      ...result
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
 // ============================================================================
-// DEMO MODE CONTROLS (SEEDED SIMULATION FOR EVALUATOR DEMO)
+// DEMO MODE CONTROLS
+// (SEEDED SIMULATION FOR EVALUATOR DEMO)
 // ============================================================================
 
-// POST /api/admin/demo/generate -> Reset and seed 347 realistic records
+// POST /api/admin/demo/generate
+// -> Reset and seed 347 realistic records
 app.post('/api/admin/demo/generate', requireAdmin, (req, res) => {
   try {
     db.generateDemoData();
-    res.json({ success: true, message: 'Seeded 347 realistic student records, referral trees, and ₹1,250 expenses.' });
+
+    res.json({
+      success: true,
+      message:
+        'Seeded 347 realistic student records, referral trees, and ₹1,250 expenses.'
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
@@ -264,20 +400,34 @@ app.post('/api/admin/demo/generate', requireAdmin, (req, res) => {
 app.post('/api/admin/demo/clear', requireAdmin, (req, res) => {
   try {
     db.clearData();
-    res.json({ success: true, message: 'Cleared all student and referral data.' });
+
+    res.json({
+      success: true,
+      message: 'Cleared all student and referral data.'
+    });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
-// POST /api/admin/demo/quick-referral -> Quick helper to test referral live during interview demo
+// POST /api/admin/demo/quick-referral
+// -> Quick helper to test referral live during interview demo
 app.post('/api/admin/demo/quick-referral', (req, res) => {
   try {
     const { ref_code } = req.body;
+
     if (!ref_code) {
-      return res.status(400).json({ success: false, error: 'ref_code is required' });
+      return res.status(400).json({
+        success: false,
+        error: 'ref_code is required'
+      });
     }
+
     const randId = Math.floor(1000 + Math.random() * 9000);
+
     const demoFriend = {
       name: `Demo Friend ${randId}`,
       email: `friend${randId}@example.com`,
@@ -290,30 +440,65 @@ app.post('/api/admin/demo/quick-referral', (req, res) => {
       source: 'Referral',
       ref_code: ref_code
     };
+
     const student = db.registerStudent(demoFriend);
-    res.json({ success: true, message: `Simulated friend registered using code ${ref_code}`, student });
+
+    res.json({
+      success: true,
+      message: `Simulated friend registered using code ${ref_code}`,
+      student
+    });
   } catch (err) {
-    res.status(400).json({ success: false, error: err.message });
+    res.status(400).json({
+      success: false,
+      error: err.message
+    });
   }
 });
 
+// ============================================================================
+// HEALTH CHECK
+// ============================================================================
+
 // Root ping
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'AI Workshop Growth Engine API', version: '1.0.0' });
+  res.json({
+    status: 'ok',
+    service: 'AI Workshop Growth Engine API',
+    version: '1.0.0'
+  });
 });
 
-// Serve frontend build if dist folder exists
+// ============================================================================
+// SERVE FRONTEND BUILD
+// ============================================================================
+
 if (fs.existsSync(CLIENT_DIST)) {
   app.use(express.static(CLIENT_DIST));
+
   app.use((req, res, next) => {
     if (!req.path.startsWith('/api')) {
-      return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
+      return res.sendFile(
+        path.join(CLIENT_DIST, 'index.html')
+      );
     }
+
     next();
   });
-  console.log(`[SERVER] Serving production frontend build from ${CLIENT_DIST}`);
+
+  console.log(
+    `[SERVER] Serving production frontend build from ${CLIENT_DIST}`
+  );
 }
 
-app.listen(PORT, () => {
-  console.log(`[SERVER] AI Workshop Growth Engine running on http://localhost:${PORT}`);
+// ============================================================================
+// START SERVER
+// ============================================================================
+
+// IMPORTANT FOR RENDER:
+// Listen on 0.0.0.0 so the application is accessible externally.
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(
+    `[SERVER] AI Workshop Growth Engine running on port ${PORT}`
+  );
 });
