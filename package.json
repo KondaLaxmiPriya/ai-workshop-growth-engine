@@ -1,0 +1,15 @@
+{
+  "name": "ai-workshop-growth-engine",
+  "version": "1.0.0",
+  "description": "AI Workshop Growth Engine - Turn student interest into 500 registrations",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && node index.js",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
